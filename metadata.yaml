@@ -1,19 +1,17 @@
 # Copyright 2021 Facundo Ciccioli
 # See LICENSE file for licensing details.
-name: sidecar-charm-thruk
+name: thruk
 description: |
   TEMPLATE-TODO: fill out the charm's description
 summary: |
   TEMPLATE-TODO: fill out the charm's summary
 
-# TEMPLATE-TODO: replace with containers for your workload (delete for non-k8s)
 containers:
-  httpbin:
-    resource: httpbin-image
+  thruk:
+    resource: thruk-image
 
-# TEMPLATE-TODO: each container defined above must specify an oci-image resource
 resources:
-  httpbin-image:
+  thruk-image:
     type: oci-image
-    description: OCI image for httpbin (kennethreitz/httpbin)
+    description: OCI image for thruk (meyer91/thruk)
 
