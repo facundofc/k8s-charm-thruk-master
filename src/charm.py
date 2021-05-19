@@ -21,6 +21,12 @@ from ops.model import ActiveStatus
 
 logger = logging.getLogger(__name__)
 
+REQUIRED_THRUK_AGENT_FIELDS = {
+    "url",
+    "nagios_context",
+    "thruk_key",
+    "thruk_id",
+}
 
 class SidecarCharmThrukCharm(CharmBase):
     """Charm the service."""
@@ -30,6 +36,7 @@ class SidecarCharmThrukCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
         self.framework.observe(self.on.thruk_pebble_ready, self._on_thruk_pebble_ready)
+        self.framework.observe(self.on['thruk-agent'].relation_changed, self._on_thruk_agent_relation_changed)
         #self.framework.observe(self.on.config_changed, self._on_config_changed)
         #self.framework.observe(self.on.fortune_action, self._on_fortune_action)
         self._stored.set_default(things=[])
@@ -66,6 +73,28 @@ class SidecarCharmThrukCharm(CharmBase):
         # Learn more about statuses in the SDK docs:
         # https://juju.is/docs/sdk/constructs#heading--statuses
         self.unit.status = ActiveStatus()
+
+    def _on_thruk_agent_relation_changed(self, event):
+        agent_fields = {
+            field: event.relation.data[event.unit].get(field)
+            for field in REQUIRED_THRUK_AGENT_FIELDS
+        }
+
+        # if any required fields are missing, warn the user and return
+        missing_fields = [
+            field
+            for field in REQUIRED_THRUK_AGENT_FIELDS
+            if agent_fields.get(field) is None
+        ]
+        if len(missing_fields) > 0:
+            logger.error(
+                "Missing required data fields for related agent "
+                "relation: {}".format(missing_fields)
+            )
+            return
+        logger.error("I'd be writing the config file now...")
+        for f in REQUIRED_THRUK_AGENT_FIELDS:
+            logger.error(f"{f} = {event.relation.data[event.unit][f]}")
 
     def _on_config_changed(self, _):
         """Just an example to show how to deal with changed configuration.
