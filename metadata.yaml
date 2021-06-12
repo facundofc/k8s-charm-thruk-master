@@ -2,9 +2,11 @@
 # See LICENSE file for licensing details.
 name: thruk
 description: |
-  TEMPLATE-TODO: fill out the charm's description
+  Multiple Nagios instances aggregator.
 summary: |
-  TEMPLATE-TODO: fill out the charm's summary
+  Deploy multiple nagios' units and aggregate all of their information in a
+  single place. In addition to this, thruk also adds other features like
+  support for regex searches.
 
 containers:
   thruk:

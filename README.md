@@ -2,12 +2,23 @@
 
 ## Description
 
-TODO: Describe your charm in a few paragraphs of Markdown
+Thruk Master Charm. Multiple Nagios instances aggregator.
 
 ## Usage
 
-TODO: Provide high-level usage, such as required config or relations
+    juju deploy nagios --config enable_livestatus=true
+    juju deploy thruk-agent
+    juju deploy thruk-master
+    juju add-relation nagios:juju-info thruk-agent:general-info
+    juju add-relation thruk-master:thruk-agent thruk-agent:thruk-agent
 
+To access the Web UI visit the url:
+
+    http://<thruk-master-ip>/thruk/
+
+Login with user `thrukadmin`. Its password can be retrieved with
+
+    juju run -u thruk-master/0 "sudo cat /var/lib/thruk/thrukadmin.passwd"
 
 ## Developing
 

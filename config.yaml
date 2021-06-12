@@ -1,14 +1,43 @@
 # Copyright 2021 Facundo Ciccioli
 # See LICENSE file for licensing details.
-#
-# TEMPLATE-TODO: change this example to suit your needs.
-# If you don't need a config, you can remove the file entirely.
-# It ties in to the example _on_config_changed handler in src/charm.py
-#
-# Learn more about config at: https://juju.is/docs/sdk/config
 
 options:
-  thing:
-    default: 🎁
-    description: A thing used by the charm.
+  url:
     type: string
+    default: "nagios.example.com"
+    description: "URL to use for web virtual host"
+  trusted_ssl_cert:
+    type: string
+    default: ''
+    description: |
+        Name and location of the remotely trusty ssl cert.  Basename of this file
+        will be used as the basename of the chain file rooted at
+        /etc/ssl/certs.
+  trusted_ssl_certlocation:
+    type: string
+    default: ''
+    description: |
+        Name and location of the remotely trusty ssl cert.  Basename of this file
+        will be used as the basename of the chain file rooted at
+        /etc/ssl/certs.
+  log-path:
+    default: "/var/log/thruk/thruk.log"
+    type: string
+    description: >
+      The default log path.
+  debug-log:
+    default: false
+    type: boolean
+    description: >
+      Enables debug logging for thruk.
+  debug-log-path:
+    default: "/var/log/thruk/debug.log"
+    type: string
+    description: >
+      The default log path for debugging (if enabled).
+  screen-log:
+    default: false
+    type: boolean
+    description: >
+      Enables debug logging to stderr for thruk - in the default case, this ends
+      up in the apache error logs.
