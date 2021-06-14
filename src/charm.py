@@ -9,6 +9,8 @@ from ops.framework import StoredState
 from ops.main import main
 from ops.model import ActiveStatus
 
+import templating
+
 logger = logging.getLogger(__name__)
 
 REQUIRED_THRUK_AGENT_FIELDS = {
@@ -18,11 +20,19 @@ REQUIRED_THRUK_AGENT_FIELDS = {
     "thruk_id",
 }
 
+THRUK_SERVICE = 'thruk'
+
 class SidecarCharmThrukCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
         self.framework.observe(self.on.thruk_pebble_ready, self._on_thruk_pebble_ready)
+        self.framework.observe(self.on.config_changed, self._on_config_changed)
         self.framework.observe(self.on['thruk-agent'].relation_changed, self._on_thruk_agent_relation_changed)
+
+    def _on_config_changed(self, event):
+        context = {'config': self.config}
+        container = self.unit.get_container(THRUK_SERVICE)
+        container.push("/etc/thruk/log4perl.conf", templating.render(self.charm_dir, "log4perl.conf", context))
 
     def _on_thruk_pebble_ready(self, event):
         # Get a reference the container attribute on the PebbleReadyEvent
@@ -32,7 +42,7 @@ class SidecarCharmThrukCharm(CharmBase):
             "summary": "thruk layer",
             "description": "pebble config layer for thruk",
             "services": {
-                "thruk": {
+                THRUK_SERVICE: {
                     "override": "replace",
                     "summary": "thruk",
                     "command": "/usr/src/start.sh",
