@@ -41,3 +41,23 @@ options:
     description: >
       Enables debug logging to stderr for thruk - in the default case, this ends
       up in the apache error logs.
+  peers:
+    type: string
+    default: '{}'
+    description: |
+        A mapping in YAML syntax whose keys are the peers and the values are the configuration of each peer:
+            {
+                "peer1": {
+                    "url": "peer1.url.com",
+                    "nagios_context": "peer1-context",
+                    "thruk_key": "peer1_key",
+                    "thruk_id": "peer1_id"
+                },
+                "peer2": {
+                    "url": "peer2.url.com",
+                    "nagios_context": "peer2-context",
+                    "thruk_key": "peer2_key",
+                    "thruk_id": "peer2_id"
+                },
+                ...
+            }
