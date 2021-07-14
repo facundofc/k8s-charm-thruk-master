@@ -29,7 +29,7 @@ def file_hash(container, filename):
     f = container.pull(filename, encoding=None)
     return hashlib.md5(f.read()).hexdigest()
 
-class SidecarCharmThrukCharm(CharmBase):
+class ThrukMasterCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
         self.framework.observe(self.on.thruk_pebble_ready, self._on_thruk_pebble_ready)
@@ -113,4 +113,4 @@ class SidecarCharmThrukCharm(CharmBase):
 
 
 if __name__ == "__main__":
-    main(SidecarCharmThrukCharm)
+    main(ThrukMasterCharm)
