@@ -9,6 +9,10 @@ nagios server. Each of these remote thruks are called "peers" in thruk's
 configuration. A peer is just the URL where the remote thruk lives and a couple
 of other pieces of info.
 
+This charm, if deployed with the `meyer91/thruk` image, will create a pod
+running said image and automatically start up thruk. The config property
+`peers` shall be used to configure all of this thruk's peers.
+
 # Usage
 
 *NOTE:* The set of commands showed below is just indicative, as at the time of
@@ -37,7 +41,7 @@ To access the Web UI visit the url:
 Login with user `thrukadmin`. Its password can be retrieved with
 
 ```
-    juju ssh --container thruk thruk/0 cat /etc/thruk/htpasswd
+    juju ssh --container thruk thruk/0 -- sudo cat /var/lib/thruk/thrukadmin.passwd
 ```
 
 # Developing
