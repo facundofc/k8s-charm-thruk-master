@@ -1,6 +1,6 @@
 # Copyright 2021 Facundo Ciccioli
 # See LICENSE file for licensing details.
-name: thruk-master
+name: thruk-master-k8s
 description: |
   Multiple Nagios instances aggregator.
 summary: |

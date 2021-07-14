@@ -31,7 +31,7 @@ writing there is no nagios charm implemented for the Kubernetes platform yet.
             url: http://peer2.com
             thruk_key: uoo39og
     EOF
-    juju deploy thruk-master --config ./config.yaml --resource thruk-image=meyer91/thruk
+    juju deploy thruk-master-k8s --config ./config.yaml --resource thruk-image=meyer91/thruk
 ```
 
 To access the Web UI visit the url:
@@ -41,7 +41,7 @@ To access the Web UI visit the url:
 Login with user `thrukadmin`. Its password can be retrieved with
 
 ```
-    juju ssh --container thruk thruk/0 -- sudo cat /var/lib/thruk/thrukadmin.passwd
+    juju ssh --container thruk thruk-master-k8s/0 -- sudo cat /var/lib/thruk/thrukadmin.passwd
 ```
 
 # Developing
