@@ -34,23 +34,47 @@ class ThrukMasterCharm(CharmBase):
         super().__init__(*args)
         self.framework.observe(self.on.thruk_pebble_ready, self._on_thruk_pebble_ready)
         self.framework.observe(self.on.config_changed, self._on_config_changed)
+        self.framework.observe(self.on['thruk-agent'].relation_changed, self._on_thruk_agent_relation_changed)
+        self.framework.observe(self.on['thruk-agent'].relation_departed, self._on_thruk_agent_relation_departed)
 
-    def _on_config_changed(self, event):
-        peers = self._get_peers_for_context(self.config['peers'])
-        if peers is None:
+    def _on_thruk_agent_relation_changed(self, event):
+        REQUIRED_KEYS = {'nagios_context', 'url', 'thruk_key'}
+        missing_keys = REQUIRED_KEYS - event.relation.data[event.unit].keys()
+        if missing_keys:
+            self.unit.status = BlockedStatus(f"Waiting for thruk-agent relation to complete, missing keys: {', '.join(missing_keys)}")
             return
 
+        self._render_config_files()
+        self.unit.status = ActiveStatus()
+
+    def _render_config_files(self):
         container = self.unit.get_container(THRUK_SERVICE)
         context = {
             'config': self.config,
-            'peers': peers,
+            'peers': self._peers,
         }
         with self.restart_if_changed(container, '/etc/thruk/log4perl.conf', '/etc/thruk/thruk_local.conf'):
             container.push("/etc/thruk/log4perl.conf", templating.render(self.charm_dir, "log4perl.conf", context))
             container.push("/etc/thruk/thruk_local.conf", templating.render(self.charm_dir, "thruk_local.conf", context))
 
-    def _is_peer_config_valid(self, config):
-        return all([x in config for x in REQUIRED_PEER_KEYS])
+    @property
+    def _peers(self):
+        ret = []
+        for relation in self.model.relations['thruk-agent']:
+            for unit in relation.units:
+                ret.append({
+                    'url': relation.data[unit]['url'],
+                    'nagios_context': relation.data[unit]['nagios_context'],
+                    'thruk_key': relation.data[unit]['thruk_key'],
+                    'thruk_id': relation.data[unit]['thruk_id'],
+                })
+        return ret
+
+    def _on_thruk_agent_relation_departed(self, event):
+        self._render_config_files()
+
+    def _on_config_changed(self, event):
+        self._render_config_files()
 
     def _on_thruk_pebble_ready(self, event):
         # Get a reference the container attribute on the PebbleReadyEvent
@@ -75,21 +99,6 @@ class ThrukMasterCharm(CharmBase):
 
         if not isinstance(self.unit.status, BlockedStatus):
             self.unit.status = ActiveStatus()
-
-    def _get_peers_for_context(self, peers):
-        try:
-            peers = yaml.load(io.StringIO(peers))
-        except yaml.YAMLError:
-            self.unit.status = BlockedStatus("'peers' config property is not valid YAML.")
-            return None
-        invalid_peers = [p for p in peers if not self._is_peer_config_valid(peers[p])]
-        if invalid_peers:
-            self.unit.status = BlockedStatus(f"Peers with invalid configuration: {invalid_peers}")
-            return None
-        peers = list(peers.values())
-        for p in peers:
-            p['thruk_id'] = hashlib.md5(p['nagios_context'].encode('utf-8')).hexdigest()
-        return peers
 
     @contextlib.contextmanager
     def restart_if_changed(self, container, *filenames):

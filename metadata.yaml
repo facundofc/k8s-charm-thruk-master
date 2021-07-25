@@ -16,3 +16,7 @@ resources:
   thruk-image:
     type: oci-image
     description: OCI image for thruk (meyer91/thruk)
+
+requires:
+  thruk-agent:
+    interface: thruk-agent

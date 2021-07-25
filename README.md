@@ -20,18 +20,17 @@ writing there is no nagios charm implemented for the Kubernetes platform yet.
 
 ```
     juju deploy nagios --config enable_livestatus=true
-    cat >config.yaml <<EOF
-    peers:
-        peer1":
-            nagios_context: peer-1
-            url: http://peer1.com
-            thruk_key: 94dlks
-        peer2:
-            nagios_context: peer-2
-            url: http://peer2.com
-            thruk_key: uoo39og
-    EOF
-    juju deploy thruk-master-k8s --config ./config.yaml --resource thruk-image=meyer91/thruk
+    juju deploy proxy-thruk-agent thruk-peer-1 --resource stub-image=alpine \
+        --config nagios_context=peer-1 \
+        --config url=http://peer1.com \
+        --config thruk_key=94dlks
+    juju deploy proxy-thruk-agent thruk-peer-2 --resource stub-image=alpine \
+        --config nagios_context=peer-2 \
+        --config url=http://peer2.com \
+        --config thruk_key=uoo39og
+    juju deploy thruk-master-k8s --resource thruk-image=meyer91/thruk
+    juju relate thruk-master-k8s thruk-peer-1
+    juju relate thruk-master-k8s thruk-peer-2
 ```
 
 To access the Web UI visit the url:
