@@ -10,10 +10,10 @@ summary: |
 
 containers:
   thruk:
-    resource: thruk-image
+    resource: image
 
 resources:
-  thruk-image:
+  image:
     type: oci-image
     description: OCI image for thruk (meyer91/thruk)
 
