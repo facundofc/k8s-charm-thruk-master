@@ -38,8 +38,7 @@ class ThrukMasterCharm(CharmBase):
         self.framework.observe(self.on['thruk-agent'].relation_departed, self._on_thruk_agent_relation_departed)
 
     def _on_thruk_agent_relation_changed(self, event):
-        REQUIRED_KEYS = {'nagios_context', 'url', 'thruk_key'}
-        missing_keys = REQUIRED_KEYS - event.relation.data[event.unit].keys()
+        missing_keys = REQUIRED_PEER_KEYS - event.relation.data[event.unit].keys()
         if missing_keys:
             self.unit.status = BlockedStatus(f"Waiting for thruk-agent relation to complete, missing keys: {', '.join(missing_keys)}")
             return
@@ -62,11 +61,12 @@ class ThrukMasterCharm(CharmBase):
         ret = []
         for relation in self.model.relations['thruk-agent']:
             for unit in relation.units:
+                relation_data = relation.data[unit]
                 ret.append({
-                    'url': relation.data[unit]['url'],
-                    'nagios_context': relation.data[unit]['nagios_context'],
-                    'thruk_key': relation.data[unit]['thruk_key'],
-                    'thruk_id': relation.data[unit]['thruk_id'],
+                    'url': relation_data['url'],
+                    'nagios_context': relation_data['nagios_context'],
+                    'thruk_key': relation_data['thruk_key'],
+                    'thruk_id': relation_data['thruk_id'],
                 })
         return ret
 
