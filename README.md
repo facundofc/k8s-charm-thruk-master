@@ -9,51 +9,44 @@ nagios server. Each of these remote thruks are called "peers" in thruk's
 configuration. A peer is just the URL where the remote thruk lives and a couple
 of other pieces of info.
 
-This charm, if deployed with the `meyer91/thruk` image, will create a pod
-running said image and automatically start up thruk. The config property
-`peers` shall be used to configure all of this thruk's peers.
+This Kubernetes charm, if deployed with the
+[meyer91/thruk](https://hub.docker.com/r/meyer91/thruk) image, will create a
+pod running said image and automatically start up Thruk. Peers are added by
+relating this charm's application with others providing the `thruk-agent`
+interface.
 
 # Usage
 
-*NOTE:* The set of commands showed below is just indicative, as at the time of
-writing there is no nagios charm implemented for the Kubernetes platform yet.
+On `host1`:
 
-```
     juju deploy nagios --config enable_livestatus=true
-    juju deploy proxy-thruk-agent thruk-peer-1 --resource stub-image=alpine \
-        --config nagios_context=peer-1 \
-        --config url=http://peer1.com \
+    juju deploy thruk-agent
+	juju relate nagios thruk-agent
+
+On `host2`:
+
+    juju deploy proxy-thruk-agent thruk-peer-host1 --resource stub-image=alpine \
+        --config nagios_context=host1 \
+        --config url=http://host1 \
         --config thruk_key=94dlks
-    juju deploy proxy-thruk-agent thruk-peer-2 --resource stub-image=alpine \
-        --config nagios_context=peer-2 \
-        --config url=http://peer2.com \
-        --config thruk_key=uoo39og
-    juju deploy thruk-master-k8s --resource thruk-image=meyer91/thruk
-    juju relate thruk-master-k8s thruk-peer-1
-    juju relate thruk-master-k8s thruk-peer-2
-```
+    juju deploy thruk-master-k8s --resource image=meyer91/thruk
+    juju relate thruk-master-k8s:thruk-agent thruk-peer-host1:thruk-agent
 
-To access the Web UI visit the url:
+Currently, the
+[Nagios](https://charmhub.io/nagios)&nbsp;+&nbsp;[Thruk agent](https://charmhub.io/thruk-agent)
+deployment has to be made on a non-kubernetes juju deployment. Neither of
+Nagios nor the Thruk agent have charm versions suitable for Kubernetes
+deployments yet.
 
-    http://<thruk-master-ip>/thruk/
+On the contrary, if using this example as is, both the proxy Thruk agent and
+the Thruk master itself have to be installed on a Kubernetes juju deployment.
+However, there are non-kubernetes versions for [the proxy Thruk
+agent](https://charmhub.io/thruk-external-agent) and [the Thruk
+master](https://charmhub.io/thruk-master).
 
-Login with user `thrukadmin`. Its password can be retrieved with
+Once deployed, Thruk's Web UI will be available on the URL:
 
-```
-    juju ssh --container thruk thruk-master-k8s/0 -- sudo cat /var/lib/thruk/thrukadmin.passwd
-```
+    http://host2/thruk/
 
-# Developing
-
-Create and activate a virtualenv with the development requirements:
-
-    virtualenv -p python3 venv
-    source venv/bin/activate
-    pip install -r requirements-dev.txt
-
-# Testing
-
-The Python operator framework includes a very nice harness for testing
-operator behaviour without full deployment. Just `run_tests`:
-
-    ./run_tests
+Username and password are the defaults provided by the `meyer91/thruk` image,
+ie. `thrukadmin/thrukadmin`.
