@@ -6,20 +6,6 @@ options:
     type: string
     default: "nagios.example.com"
     description: "URL to use for web virtual host"
-  trusted_ssl_cert:
-    type: string
-    default: ''
-    description: |
-        Name and location of the remotely trusty ssl cert.  Basename of this file
-        will be used as the basename of the chain file rooted at
-        /etc/ssl/certs.
-  trusted_ssl_certlocation:
-    type: string
-    default: ''
-    description: |
-        Name and location of the remotely trusty ssl cert.  Basename of this file
-        will be used as the basename of the chain file rooted at
-        /etc/ssl/certs.
   log-path:
     default: "/var/log/thruk/thruk.log"
     type: string
