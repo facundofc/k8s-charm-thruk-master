@@ -25,7 +25,7 @@ On `host1`:
 
 On `host2`:
 
-    juju deploy proxy-thruk-agent thruk-peer-host1 --resource stub-image=alpine \
+    juju deploy proxy-thruk-agent thruk-peer-host1 --resource image=alpine \
         --config nagios_context=host1 \
         --config url=http://host1 \
         --config thruk_key=94dlks
